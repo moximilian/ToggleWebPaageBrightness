@@ -1,34 +1,30 @@
 <template>
-  <div class="main">
-    <div>Change your brightness!</div>
-    <div>
-      {{ theme === 'dark'? 'Dark' : 'Light' }} Time
-      <ToggleSwitch @onChange="switchTheme"/>
+    <div class="main">
+        {{ brightness }}
+        <SliderInput :v-model="brightness" :modelValue="brightness" @onChange="changeBrightness" />
     </div>
-    <SliderInput @onChange="changeBrightness" />
-
-  </div>
 </template>
 
 <script>
 import SliderInput from './components/SliderInput.vue'
-import ToggleSwitch from './components/ToggleSwitch.vue';
 export default {
-  data() {
-    return {
-      theme: 'light'
-    }
-  },
-  methods: {
-    changeBrightness(value) {
-      chrome.runtime.sendMessage({ action: 'setBrightness', value })
+    data() {
+        return {
+            theme: 'light',
+            brightness: 100,
+        }
     },
-    switchTheme(isDark) {
-      this.theme = isDark ? 'dark' : 'light'
-      window.localStorage.setItem('isDark', isDark)
-      document.querySelector('body').classList.toggle('dark-theme')
-    }
-  },
-  components: { SliderInput, ToggleSwitch },
+    methods: {
+        changeBrightness(value) {
+            this.brightness = value
+            chrome.storage.sync.set({ lastRequest: { action: 'setBrightness', value } })
+        },
+    },
+    created() {
+        chrome.storage.sync.get('lastRequest').then(items => {
+            this.brightness = items.lastRequest.value
+        })
+    },
+    components: { SliderInput },
 }
 </script>

@@ -1,42 +1,42 @@
 <template>
   <div class="slider-container">
-    <input type="range" min="0" max="100" v-model="sliderValue" class="slider" @input="onInput" />
+    <input
+      type="range"
+      min="0"
+      max="100"
+      :value="modelValue"
+      class="slider"
+      @input="onInput"
+      autofocus
+      autocomplete="on"
+    />
   </div>
 </template>
 
 <script>
+import debounce from '@/core/functions'
 export default {
+  props: {
+    modelValue: { type: Number, default: () => 100 },
+  },
   name: 'SliderInput',
   emits: ['onChange'],
   data() {
     return {
-      sliderValue: 100,
+      width: 162,
     }
   },
   methods: {
+    emitEmmediate(val) {
+      this.$emit('onChange', val)
+    },
     onInput(event) {
-      const val = event.target.value
-      const max = event.target.max || 100
-      const sliderWidth = event.target.offsetWidth
-      const percent = (val / max) * 100
-
-      // рассчёт смещения в px
-      const offsetPx = (1 - val / max)
-
-      // итоговая позиция с учётом смещения
-      const correctedPercentPx = (sliderWidth * percent) / 100 - offsetPx * (1/10000)
-
-      // перевод в проценты от ширины слайдера
-      const correctedPercent = (correctedPercentPx / sliderWidth) * 100
-
-      event.target.style.setProperty('--percent', `${correctedPercent}%`)
-      window.localStorage.setItem('sliderVal', this.sliderValue)
-      this.$emit('onChange', this.sliderValue)
+      const val = event.target.value      
+      this.emit(val)
     },
   },
   created() {
-    this.sliderValue = window.localStorage.getItem('sliderVal') || 100
-    this.onInput()
+    this.emit = debounce(this.emitEmmediate, 400)
   },
 }
 </script>

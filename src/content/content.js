@@ -1,11 +1,12 @@
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  const mapper = {
-    setBrightness: (value) => {
-      value !== undefined &&
-        (document.documentElement.style.filter = `brightness(${request.value / 100})`) &&
-        sendResponse({ status: 'success' })
-    },
-  }
-  mapper[request.action](request.value)
-  return true
+    const mapper = {
+        setBrightness: setBrightness,
+    }
+    mapper[request.action](request.value)
+    sendResponse({ status: 'success' })
+    return true
 })
+
+setBrightness = brightness => {
+    brightness !== undefined && (document.documentElement.style.filter = `brightness(${brightness / 100})`)
+}
